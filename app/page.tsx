@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 
 interface Product {
   id: string
@@ -28,6 +28,33 @@ export default function ProductsPage() {
       })
   }, [])
 
+const handleExlcuir = async (id: string) => {
+    if (!confirm("Deseja realmente excluir este produto?")) return;
+    
+    try {
+      const response = await fetch(`/api/products?id=${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao deletar produto");
+      }
+
+      setProducts((prevProducts) => 
+        prevProducts.filter((product) => product.id !== id)
+      );
+
+      alert("Excluído com sucesso!");
+
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("Unknown error");
+      }
+    }
+  }
+
   if (loading) return <div className="p-8">Loading products...</div>
   if (error) return <div className="p-8 text-red-500">Error: {error}</div>
 
@@ -40,9 +67,11 @@ export default function ProductsPage() {
             <h2 className="font-semibold text-lg">{product.name}</h2>
             <p className="text-sm text-gray-600 my-2">{product.description}</p>
             <p className="font-bold text-lg">${product.price}</p>
+            <button onClick={() => handleExlcuir(product.id)}className="bg-red-500 text-white py-2 px-4 rounded mt-4">Excluir </button>
           </div>
         ))}
       </div>
     </main>
   )
 }
+
